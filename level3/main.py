@@ -8,7 +8,9 @@ def get_monthly_commission(deals, objective):
 
     for deal in deals:
         current_commission = 0
+        # If this deal is going to exceed first half of objective
         if current_total + deal > objective_half:
+            # if current_total is greater than objective_half => max will return 0
             first_step_remaining = max(objective_half - current_total, 0)
             current_commission += first_step_remaining * 5 / 100
             if current_total <= objective_half:
@@ -17,6 +19,7 @@ def get_monthly_commission(deals, objective):
         else:
             current_commission += deal * 5 / 100
         if current_total + deal > objective:
+            # if current_total is greater than objective => max will return 0
             second_step_remaining = max(objective - current_total, 0)
             current_commission += second_step_remaining * 10 / 100
             current_commission += (deal - second_step_remaining) * 15 / 100
@@ -55,20 +58,16 @@ def main():
         else:
             users[corresponding_user]["commissions"][str(month)] = [amount]
 
-    print(json.dumps(users))
-
     for id_user in users:
-        user_commissionnn = {
+        user_commission = {
             "user_id" : id_user,
             "commission" : {}
         }
-        print('aaa = ', users[id_user])
         for month in users[id_user]["commissions"]:
             month_deals = users[id_user]["commissions"][month]
-            print("month_deals =", month_deals)
-            print("month = ", month)
-            commission, commissions = get_monthly_commission(month_deals, users[id_user]["objective"])
-            user_commissionnn["commission"][month] = commission
+            objective = users[id_user]["objective"]
+            commission, commissions = get_monthly_commission(month_deals, objective)
+            user_commission["commission"][month] = commission
             for one_commission in commissions:
                 result["deals"].append(
                     {
@@ -76,13 +75,8 @@ def main():
                         "commission" : one_commission
                     })
                 current_id += 1
-                # result_commission = {}
-            print(commission)
-            print(commissions)
-        result["commissions"].append(user_commissionnn)
-        print("\n\n")
+        result["commissions"].append(user_commission)
 
-    print(json.dumps(result))
     # Write the result in output_file
     output_file.write(json.dumps(result))
 
